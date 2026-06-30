@@ -22,12 +22,12 @@ public class ReproductorGUI extends JFrame {
     private List<Cancion> actualPlaylist;
     private Cancion cancionActual;
     
-    private Timer barraTimer; 
-    private int indiceActual = 0; // CONTROL DE LA CANCIÓN ACTUAL EN LA LISTA
+   private Timer barraTimer; 
+    private int indiceActual = 0;
 
     // Variables para el fondo animado
     private float hue = 0.0f;
-
+private boolean actualizandoDesdeTimer = false;
     public ReproductorGUI() {
         // 1. CONFIGURACIÓN DE LA VENTANA
         setTitle("Reproductor de Música");
@@ -134,12 +134,36 @@ public class ReproductorGUI extends JFrame {
 
     private void configurarEventos() {
         
-        // Timer de la barra de progreso
+        // Timer de la barra de progreso (Modificado con bandera de control)
         barraTimer = new Timer(1000, e -> {
             if (progressSlider.getValue() < progressSlider.getMaximum()) {
+                actualizandoDesdeTimer = true; // 1. Avisamos que el cambio viene del código
                 progressSlider.setValue(progressSlider.getValue() + 1);
+                actualizandoDesdeTimer = false; // 2. Apagamos el aviso
             } else {
                 barraTimer.stop();
+            }
+        });
+
+        // 🎛️ NUEVO: Escucha cuando arrastras o haces clic en la barra de reproducción
+        progressSlider.addChangeListener(e -> {
+            // Solo actuamos si el cambio NO lo hizo el timer y si el usuario ya SOLTÓ el mouse
+            if (!actualizandoDesdeTimer && !progressSlider.getValueIsAdjusting()) {
+                if (cancionActual != null) {
+                    int segundoDestino = progressSlider.getValue();
+                    int segundoMaximo = progressSlider.getMaximum();
+                    
+                    // Guardamos si la música ya estaba sonando
+                    boolean estabaSonando = barraTimer.isRunning();
+                    
+                    // Ordenamos al motor que haga el salto de bytes
+                    servicioAudio.seek(cancionActual.getRutaArchivo(), segundoDestino, segundoMaximo);
+                    
+                    // Si estaba sonando, mantenemos el Timer gráfico encendido
+                    if (estabaSonando) {
+                        barraTimer.start();
+                    }
+                }
             }
         });
 
@@ -148,7 +172,7 @@ public class ReproductorGUI extends JFrame {
             String seleccion = (String) cbPlaylists.getSelectedItem();
             String genero = seleccion.split(" ")[0].toLowerCase();
             actualPlaylist = localRepository.getPlaylistByGenero(genero);
-            indiceActual = 0; // Al cambiar de género, reiniciamos al primer elemento
+            indiceActual = 0;
 
             if (actualPlaylist != null && !actualPlaylist.isEmpty()) {
                 cargarCancionEnPantalla(actualPlaylist.get(0));
@@ -160,10 +184,9 @@ public class ReproductorGUI extends JFrame {
             if (actualPlaylist != null && !actualPlaylist.isEmpty()) {
                 indiceActual++;
                 if (indiceActual >= actualPlaylist.size()) {
-                    indiceActual = 0; // Bucle: regresa a la primera si llegó al final
+                    indiceActual = 0;
                 }
                 
-                // Si estaba sonando música, paramos la anterior y reproducimos la nueva automáticamente
                 boolean estabaReproduciendo = barraTimer.isRunning();
                 cargarCancionEnPantalla(actualPlaylist.get(indiceActual));
                 
@@ -179,7 +202,7 @@ public class ReproductorGUI extends JFrame {
             if (actualPlaylist != null && !actualPlaylist.isEmpty()) {
                 indiceActual--;
                 if (indiceActual < 0) {
-                    indiceActual = actualPlaylist.size() - 1; // Bucle: va a la última si retrocede de la primera
+                    indiceActual = actualPlaylist.size() - 1;
                 }
                 
                 boolean estabaReproduciendo = barraTimer.isRunning();
@@ -211,7 +234,7 @@ public class ReproductorGUI extends JFrame {
 
         // Botón Pause
         btnPause.addActionListener(e -> {
-            servicioAudio.stop();
+            servicioAudio.pause(); // Llama a la pausa real que creamos antes
             barraTimer.stop(); 
         });
 
