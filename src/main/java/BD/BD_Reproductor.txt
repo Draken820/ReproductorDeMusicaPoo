@@ -1,0 +1,19 @@
+CREATE TABLE canciones_locales (
+    id SERIAL PRIMARY KEY,
+    titulo VARCHAR(100),
+    artista VARCHAR(100),
+    ruta_archivo VARCHAR(255),
+    ruta_imagen VARCHAR(255),
+    genero VARCHAR(50)
+);
+
+INSERT INTO canciones_locales (titulo, artista, ruta_archivo, ruta_imagen, genero) VALUES 
+('In the End', 'Linkin Park', 'src/main/java/assets/audio/rock1.mp3', 'src/main/java/assets/images/rock1.jpg', 'rock'),
+('The Pretender', 'Foo Fighters', 'src/main/java/assets/audio/rock2.mp3', 'src/main/java/assets/images/rock2.jpg', 'rock'),
+('Welcome to the Jungle', 'Guns and roses', 'src/main/java/assets/audio/rock3.mp3', 'src/main/java/assets/images/rock3.jpg', 'rock'),
+('Blinding Lights', 'The Weeknd', 'src/main/java/assets/audio/pop1.mp3', 'src/main/java/assets/images/pop1.jpg', 'pop'),
+('As it Was', 'Harry Styles', 'src/main/java/assets/audio/pop2.mp3', 'src/main/java/assets/images/pop2.jpg', 'pop'),
+('Popular', 'The Weekend', 'src/main/java/assets/audio/pop3.mp3', 'src/main/java/assets/images/pop3.jpg', 'pop'),
+('A Cruel Angel''s Thesis', 'Yoko Takahashi', 'src/main/java/assets/audio/anime1.mp3', 'src/main/java/assets/images/anime1.jpg', 'anime'),
+('il vento d''oro', 'Yugo Kanno', 'src/main/java/assets/audio/anime2.mp3', 'src/main/java/assets/images/anime2.jpg', 'anime'),
+('Dance with STEEL BALL RUN', 'Yugo Kanno', 'src/main/java/assets/audio/anime3.mp3', 'src/main/java/assets/images/anime3.jpg', 'anime');
